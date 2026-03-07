@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masaniello Multi-Ciclo Pro v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #070C14;
+  --surface:   #0D1523;
+  --surface2:  #131E30;
+  --border:    #1C2D45;
+  --border2:   #243548;
+  --primary:   #22d3ee;
+  --primary-d: #0891b2;
+  --success:   #34d399;
+  --warning:   #fbbf24;
+  --danger:    #f87171;
+  --text:      #E8F0FA;
+  --muted:     #6080A0;
+  --muted2:    #4060807a;
+  --font-num:  'JetBrains Mono', monospace;
+  --font-ui:   'Outfit', sans-serif;
+  --radius:    10px;
+  --radius-lg: 16px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-ui);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.55;
+  padding: 18px 20px 40px;
+}
+
+/* ─── LAYOUT ─── */
+.container { max-width: 1640px; margin: 0 auto; }
+
+/* ─── HEADER ─── */
+.app-header {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+  padding: 18px 26px; margin-bottom: 20px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  border-top: 3px solid var(--primary);
+}
+.app-header-left { display: flex; align-items: center; gap: 14px; }
+.app-logo {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--success));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; flex-shrink: 0;
+}
+.app-title { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
+.app-version { font-size: 0.7rem; color: var(--primary); font-family: var(--font-num); font-weight: 700; background: rgba(34,211,238,.12); padding: 2px 7px; border-radius: 20px; }
+.header-stats { display: flex; gap: 20px; flex-wrap: wrap; }
+.hstat { text-align: right; }
+.hstat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+.hstat-value { font-family: var(--font-num); font-size: 1.05rem; font-weight: 700; }
+
+/* ─── TABS ─── */
+.tabs-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 12px 14px; margin-bottom: 18px;
+}
+.tab-separator { width: 1px; background: var(--border); align-self: stretch; margin: 0 4px; flex-shrink: 0; }
+.tab-global {
+  padding: 10px 16px; border-radius: var(--radius);
+  background: var(--bg); border: 1px solid var(--border);
+  cursor: pointer; transition: all .22s; text-align: left; position: relative; overflow: hidden; flex-shrink: 0;
+}
+.tab-global::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--primary); border-radius: 2px;
+}
+.tab-global:hover { border-color: var(--primary); background: rgba(34,211,238,.05); }
+.tab-global.active { border-color: var(--primary); background: rgba(34,211,238,.1); }
+.cycle-tab {
+  flex: 1; min-width: 110px; max-width: 190px;
+  padding: 10px 14px; border-radius: var(--radius);
+  background: var(--bg); border: 1px solid var(--border);
+  cursor: pointer; transition: all .22s; text-align: left; position: relative; overflow: hidden;
+}
+.cycle-tab::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--border); transition: background .22s;
+}
+.cycle-tab:hover { border-color: var(--border2); background: var(--surface2); }
+.cycle-tab.active { border-color: var(--primary); background: rgba(34,211,238,.07); }
+.cycle-tab.active::before { background: var(--primary); }
+.cycle-tab.has-cycle.status-attivo::before { background: var(--success); }
+.cycle-tab.has-cycle.status-chiuso::before { background: var(--danger); opacity: .7; }
+.ct-name { font-weight: 700; font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ct-sub { font-size: .72rem; color: var(--muted); font-family: var(--font-num); margin-top: 3px; white-space: nowrap; }
+.new-cycle-btn {
+  padding: 10px 18px; border-radius: var(--radius); border: 1px dashed var(--success);
+  background: rgba(52,211,153,.07); color: var(--success); font-weight: 700; font-size: .85rem;
+  cursor: pointer; transition: all .2s; white-space: nowrap; font-family: var(--font-ui);
+}
+.new-cycle-btn:hover { background: rgba(52,211,153,.15); }
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 22px 24px; margin-bottom: 16px;
+}
+.card-title {
+  font-size: 1rem; font-weight: 700; color: var(--primary);
+  margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; letter-spacing: -0.01em;
+}
+
+/* ─── GLOBAL STATS CARD ─── */
+.global-card {
+  background: var(--surface); border: 1px solid var(--primary);
+  border-radius: var(--radius-lg); padding: 22px 24px; margin-bottom: 16px;
+  position: relative; overflow: hidden;
+}
+.global-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--success), transparent);
+}
+
+/* ─── STAT GRID ─── */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 12px; }
+.stat-cell {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px; text-align: left;
+}
+.sc-label { font-size: .72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.sc-value { font-family: var(--font-num); font-size: 1.45rem; font-weight: 700; line-height: 1; }
+.sc-sub { font-size: .72rem; color: var(--muted); margin-top: 5px; font-family: var(--font-num); }
+
+/* ─── TWO-COL LAYOUT ─── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media(max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+
+/* ─── CURRENT EVENT CARD ─── */
+.event-spotlight {
+  border: 2px solid var(--primary); border-radius: var(--radius-lg);
+  padding: 20px; background: linear-gradient(135deg, rgba(34,211,238,.05) 0%, transparent 60%);
+}
+.stake-big { font-family: var(--font-num); font-size: 2.4rem; font-weight: 700; color: var(--success); line-height: 1; margin: 10px 0; }
+.event-detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: .88rem; }
+.event-detail-row:last-child { border-bottom: none; }
+.edr-label { color: var(--muted); }
+.edr-value { font-family: var(--font-num); font-weight: 600; }
+
+/* ─── PROGRESS BAR ─── */
+.progress-wrap { margin: 14px 0; }
+.progress-track { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width .4s ease; }
+.progress-labels { display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); font-family: var(--font-num); margin-top: 5px; }
+
+/* ─── TABLE ─── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); max-height: 480px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+thead { background: var(--bg); position: sticky; top: 0; z-index: 5; }
+th { padding: 10px 12px; text-align: left; font-weight: 700; color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); font-family: var(--font-num); font-size: .82rem; }
+tbody tr { transition: background .15s; }
+tbody tr:hover { background: var(--surface2); }
+tr.row-win td:first-child { border-left: 2px solid var(--success); }
+tr.row-loss td:first-child { border-left: 2px solid var(--danger); }
+tr.row-active { background: rgba(34,211,238,.05); }
+tr.row-active td:first-child { border-left: 2px solid var(--primary); }
+tr.row-void td { opacity: .55; }
+tr.row-open { background: rgba(168,85,247,.06); }
+tr.row-open td:first-child { border-left: 2px solid #c084fc; }
+
+/* ─── BADGES ─── */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: .72rem; font-weight: 700; font-family: var(--font-ui); white-space: nowrap; }
+.badge-pending { background: rgba(96,128,160,.15); color: var(--muted); }
+.badge-active  { background: rgba(34,211,238,.15); color: var(--primary); }
+.badge-win     { background: rgba(52,211,153,.15); color: var(--success); }
+.badge-loss    { background: rgba(248,113,113,.15); color: var(--danger); }
+.badge-void    { background: rgba(251,191,36,.12); color: var(--warning); }
+.badge-open    { background: rgba(168,85,247,.18); color: #c084fc; border: 1px solid rgba(168,85,247,.35); animation: pulseBadge 2s ease-in-out infinite; }
+@keyframes pulseBadge { 0%,100%{opacity:1} 50%{opacity:.65} }
+
+/* ─── BUTTONS ─── */
+.btn { padding: 9px 18px; border: none; border-radius: 8px; font-family: var(--font-ui); font-size: .85rem; font-weight: 700; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary { background: var(--primary); color: var(--bg); }
+.btn-primary:hover { background: var(--primary-d); }
+.btn-success { background: var(--success); color: var(--bg); }
+.btn-success:hover { filter: brightness(1.1); }
+.btn-danger  { background: var(--danger); color: #fff; }
+.btn-danger:hover  { filter: brightness(1.1); }
+.btn-warning { background: var(--warning); color: var(--bg); }
+.btn-ghost { background: transparent; border: 1px solid var(--border2); color: var(--muted); }
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+.btn-sm { padding: 6px 12px; font-size: .78rem; }
+.btn:disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+
+/* ─── ALERTS ─── */
+.alert { padding: 12px 16px; border-radius: var(--radius); margin-bottom: 14px; font-size: .88rem; display: flex; gap: 10px; align-items: flex-start; }
+.alert-info    { background: rgba(34,211,238,.09); border: 1px solid rgba(34,211,238,.3); color: #a5f3fc; }
+.alert-success { background: rgba(52,211,153,.09); border: 1px solid rgba(52,211,153,.3); color: #6ee7b7; }
+.alert-warning { background: rgba(251,191,36,.09); border: 1px solid rgba(251,191,36,.3); color: #fde68a; }
+.alert-danger  { background: rgba(248,113,113,.09); border: 1px solid rgba(248,113,113,.3); color: #fca5a5; }
+
+/* ─── FORMS ─── */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+input[type=text], input[type=number], select {
+  background: var(--bg); border: 1px solid var(--border2); border-radius: 8px;
+  color: var(--text); font-family: var(--font-ui); font-size: .9rem; padding: 9px 13px;
+  transition: border-color .2s; width: 100%;
+}
+input:focus, select:focus { outline: none; border-color: var(--primary); }
+input::placeholder { color: var(--muted); opacity: .6; }
+
+/* ─── MODAL ─── */
+.modal-backdrop {
+  display: none; position: fixed; inset: 0;
+  background: rgba(7,12,20,.85); z-index: 100;
+  align-items: center; justify-content: center; padding: 20px;
+  backdrop-filter: blur(4px);
+}
+.modal-backdrop.open { display: flex; }
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: var(--radius-lg); padding: 26px 28px;
+  width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+  animation: modalIn .2s ease;
+}
+.modal-box.wide { max-width: 720px; }
+@keyframes modalIn { from { opacity:0; transform: translateY(12px) scale(.97); } to { opacity:1; transform: none; } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-title { font-size: 1.1rem; font-weight: 800; }
+.modal-close { width: 28px; height: 28px; border-radius: 50%; background: var(--border); border: none; color: var(--muted); cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.modal-close:hover { background: var(--danger); color: #fff; }
+
+/* ─── TOAST ─── */
+#toastContainer { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 12px 18px; border-radius: var(--radius); font-size: .88rem; font-weight: 600;
+  display: flex; align-items: center; gap: 10px; min-width: 260px; max-width: 380px;
+  animation: toastIn .3s ease; box-shadow: 0 8px 32px rgba(0,0,0,.4);
+}
+.toast-success { background: #0D2218; border: 1px solid var(--success); color: var(--success); }
+.toast-danger  { background: #200D0D; border: 1px solid var(--danger); color: var(--danger); }
+.toast-info    { background: #0A1E2A; border: 1px solid var(--primary); color: var(--primary); }
+.toast-warning { background: #211800; border: 1px solid var(--warning); color: var(--warning); }
+@keyframes toastIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: none; } }
+@keyframes toastOut { to { opacity:0; transform: translateX(20px); } }
+
+/* ─── CHART CANVAS ─── */
+.chart-container       { position: relative; height: 150px; margin-top: 10px; }
+.chart-container-sm    { position: relative; height: 60px;  margin-top: 10px; }
+
+/* ─── EMPTY STATE ─── */
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-icon { font-size: 3.5rem; margin-bottom: 16px; opacity: .4; }
+.empty-title { font-size: 1.3rem; font-weight: 800; color: var(--muted); margin-bottom: 8px; }
+.empty-sub { color: var(--muted); font-size: .9rem; margin-bottom: 24px; }
+
+/* ─── CYCLE SUMMARY ROW ─── */
+.cycle-summary-row {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.cycle-summary-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 13px 16px; border-left: 3px solid var(--border);
+}
+.cycle-summary-card.status-attivo { border-left-color: var(--success); }
+.cycle-summary-card.status-chiuso { border-left-color: var(--danger); opacity: .75; }
+
+/* ─── MISC ─── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+.txt-success { color: var(--success); }
+.txt-danger  { color: var(--danger); }
+.txt-warning { color: var(--warning); }
+.txt-primary { color: var(--primary); }
+.txt-muted   { color: var(--muted); }
+.mono { font-family: var(--font-num); }
+.fw7 { font-weight: 700; }
+.right { text-align: right; }
+.cycle-status-badge {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px;
+  border-radius: 99px; font-size: .72rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase;
+}
+.css-attivo { background: rgba(52,211,153,.15); color: var(--success); }
+.css-chiuso { background: rgba(248,113,113,.12); color: var(--danger); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="app-header-left">
+      <div class="app-logo">📊</div>
+      <div>
+        <div class="app-title">Masaniello Multi-Ciclo <span class="app-version">v2</span></div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:2px;">Money Management Professionale</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div id="syncIndicator" title="Stato sincronizzazione cloud"
+           style="font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--muted);transition:all .4s;white-space:nowrap;">
+        ⏳ Caricamento...
+      </div>
+      <div class="header-stats" id="headerStats"></div>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <div class="tabs-bar">
+    <!-- Tab globale dedicato -->
+    <div class="tab-global active" id="tabGlobal" onclick="switchToGlobal()">
+      <div class="ct-name">📊 Globale</div>
+      <div class="ct-sub" id="tabGlobalSub">Panoramica</div>
+    </div>
+    <div class="tab-separator"></div>
+    <div class="cycle-tab" id="tab0" onclick="switchCycle(0)">
+      <div class="ct-name">Ciclo 1</div><div class="ct-sub">Vuoto</div>
+    </div>
+    <div class="cycle-tab" id="tab1" onclick="switchCycle(1)">
+      <div class="ct-name">Ciclo 2</div><div class="ct-sub">Vuoto</div>
+    </div>
+    <div class="cycle-tab" id="tab2" onclick="switchCycle(2)">
+      <div class="ct-name">Ciclo 3</div><div class="ct-sub">Vuoto</div>
+    </div>
+    <div class="cycle-tab" id="tab3" onclick="switchCycle(3)">
+      <div class="ct-name">Ciclo 4</div><div class="ct-sub">Vuoto</div>
+    </div>
+    <div class="cycle-tab" id="tab4" onclick="switchCycle(4)">
+      <div class="ct-name">Ciclo 5</div><div class="ct-sub">Vuoto</div>
+    </div>
+    <div class="cycle-tab" id="tab5" onclick="switchCycle(5)">
+      <div class="ct-name">Ciclo 6</div><div class="ct-sub">Vuoto</div>
+    </div>
+    <button class="new-cycle-btn" onclick="openNewCycleModal()">＋ Nuovo Ciclo</button>
+  </div>
+
+  <!-- CYCLE / GLOBAL CONTENT -->
+  <div id="cycleContent"></div>
+
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer"></div>
+
+<!-- ══════════════ MODAL: NUOVO CICLO ══════════════ -->
+<div class="modal-backdrop" id="modalNewCycle">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ Configura Nuovo Ciclo</div>
+      <button class="modal-close" onclick="closeModal('modalNewCycle')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Nome Ciclo</label>
+        <input type="text" id="nc_name" placeholder="Es: Quota 1.50 – Serie A">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cassa Iniziale (€)</label>
+        <input type="number" id="nc_bankroll" value="1000" min="10" step="10">
+      </div>
+      <div class="form-group">
+        <label class="form-label">ROI Target (%)</label>
+        <input type="number" id="nc_roi" value="10" min="1" max="200" step="1" oninput="checkROIWarning()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Quota Media</label>
+        <input type="number" id="nc_odds" value="1.60" min="1.05" max="10.00" step="0.01">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Numero Eventi</label>
+        <input type="number" id="nc_events" value="50" min="5" max="300" step="1">
+      </div>
+    </div>
+    <div class="alert alert-warning" id="roiWarning" style="display:none">
+      ⚠️ ROI superiore al 20% aumenta significativamente il rischio di perdere il ciclo.
+    </div>
+    <div id="nc_preview" style="margin-bottom:14px;"></div>
+    <div class="btn-row">
+      <button class="btn btn-success" onclick="createCycle()">✅ Crea Ciclo</button>
+      <button class="btn btn-ghost" onclick="closeModal('modalNewCycle')">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL: EVENTO (Fase 1 e 2) ══════════════ -->
+<div class="modal-backdrop" id="modalEvent">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modalEventTitle">📝 Evento</div>
+      <button class="modal-close" onclick="closeModal('modalEvent')">✕</button>
+    </div>
+    <div id="modalEventBody"></div>
+    <div class="btn-row" id="modalEventBtns"></div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL: CONFERMA ══════════════ -->
+<div class="modal-backdrop" id="modalConfirm">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="confirmTitle">Conferma</div>
+      <button class="modal-close" onclick="closeModal('modalConfirm')">✕</button>
+    </div>
+    <div id="confirmBody"></div>
+    <div class="btn-row" id="confirmBtns"></div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL: IMPORT/EXPORT ══════════════ -->
+<div class="modal-backdrop" id="modalIO">
+  <div class="modal-box wide">
+    <div class="modal-header">
+      <div class="modal-title">💾 Import / Export Dati</div>
+      <button class="modal-close" onclick="closeModal('modalIO')">✕</button>
+    </div>
+    <div style="margin-bottom:14px;font-size:.88rem;color:var(--muted)">
+      Esporta l'intero stato come JSON per backup, o incolla un JSON precedente per ripristinare.
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label class="form-label">Dati JSON</label>
+      <textarea id="ioArea" rows="10" style="background:var(--bg);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-num);font-size:.78rem;padding:12px;width:100%;resize:vertical;"></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="exportJSON()">📤 Esporta JSON</button>
+      <button class="btn btn-success" onclick="importJSON()">📥 Importa JSON</button>
+      <button class="btn btn-ghost"   onclick="exportCSV()">📋 Esporta CSV Ciclo</button>
+      <button class="btn btn-ghost"   onclick="closeModal('modalIO')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let cycles = [null, null, null, null, null, null];
+let activeIdx = 0;
+let activeView = 'global'; // 'global' | 0..5
+/* ═══════════════════════════════════════════
+   SUPABASE CONFIG
+═══════════════════════════════════════════ */
+const SUPABASE_URL = 'https://fqrruqkexvzbhnlgqrqs.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_A8yhF-5BW6Sf25_tB7y-9w_XLDanbtt';
+const USER_KEY     = 'fabri_masaniello_v2';   // chiave personale — cambia per isolare sessioni diverse
+const STORAGE_KEY  = 'masaniello_v2';          // fallback localStorage
+
+/* ═══════════════════════════════════════════
+   SYNC STATUS UI
+═══════════════════════════════════════════ */
+function setSyncStatus(state) {
+  const el = document.getElementById('syncIndicator');
+  if (!el) return;
+  const map = {
+    loading : { text: '⏳ Caricamento...',  bg: 'transparent',           color: 'var(--muted)',    border: 'var(--border)'   },
+    saving  : { text: '☁️ Salvataggio...',  bg: 'rgba(56,189,248,.08)',  color: '#38bdf8',         border: '#38bdf8'         },
+    synced  : { text: '☁️ Sincronizzato',   bg: 'rgba(52,211,153,.08)',  color: 'var(--success)',  border: 'var(--success)'  },
+    local   : { text: '💾 Locale',          bg: 'rgba(251,191,36,.08)',  color: 'var(--warning)',  border: 'var(--warning)'  },
+    error   : { text: '⚠️ Errore cloud',    bg: 'rgba(248,113,113,.08)', color: 'var(--danger)',   border: 'var(--danger)'   },
+  };
+  const s = map[state] || map.local;
+  el.textContent = s.text;
+  el.style.cssText = `font-size:.72rem;font-weight:700;padding:4px 10px;border-radius:20px;transition:all .4s;white-space:nowrap;background:${s.bg};color:${s.color};border:1px solid ${s.border};`;
+}
+
+/* ═══════════════════════════════════════════
+   PERSISTENCE  — Supabase primary, localStorage fallback
+═══════════════════════════════════════════ */
+
+// Debounce: evita di spammare Supabase su modifiche rapide in sequenza
+let _saveTimer = null;
+function saveState() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(_doSave, 600);
+}
+
+async function _doSave() {
+  const data = JSON.stringify(cycles);
+  // Salva sempre in localStorage come backup locale
+  try { localStorage.setItem(STORAGE_KEY, data); } catch(e) {}
+
+  // Tenta il salvataggio su Supabase
+  setSyncStatus('saving');
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/masaniello_state`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'resolution=merge-duplicates'
+      },
+      body: JSON.stringify({ user_key: USER_KEY, data: cycles, updated_at: new Date().toISOString() })
+    });
+    if (res.ok || res.status === 201 || res.status === 200) {
+      setSyncStatus('synced');
+    } else {
+      console.warn('Supabase save error:', res.status, await res.text());
+      setSyncStatus('error');
+    }
+  } catch(e) {
+    console.warn('Supabase unreachable, saved locally:', e.message);
+    setSyncStatus('error');
+  }
+}
+
+async function loadState() {
+  setSyncStatus('loading');
+  let loaded = false;
+
+  // Tenta il caricamento da Supabase
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/masaniello_state?user_key=eq.${USER_KEY}&select=data`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+    if (res.ok) {
+      const rows = await res.json();
+      if (rows.length > 0 && rows[0].data) {
+        const parsed = rows[0].data;
+        if (Array.isArray(parsed) && parsed.length === 6) {
+          cycles = parsed.map(c => {
+            if (!c) return null;
+            if (c.createdAt) c.createdAt = new Date(c.createdAt);
+            if (!c.bankrollHistory) c.bankrollHistory = [c.bankroll];
+            if (c.voids === undefined) c.voids = 0;
+            return c;
+          });
+          loaded = true;
+          setSyncStatus('synced');
+        }
+      } else {
+        // Nessun dato su Supabase — primo accesso o dati cancellati
+        setSyncStatus('synced');
+      }
+    }
+  } catch(e) {
+    console.warn('Supabase load failed, trying localStorage:', e.message);
+  }
+
+  // Fallback: localStorage
+  if (!loaded) {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length === 6) {
+          cycles = parsed.map(c => {
+            if (!c) return null;
+            if (c.createdAt) c.createdAt = new Date(c.createdAt);
+            if (!c.bankrollHistory) c.bankrollHistory = [c.bankroll];
+            if (c.voids === undefined) c.voids = 0;
+            return c;
+          });
+          setSyncStatus('local');
+          // Tenta di caricare i dati locali su Supabase (primo sync)
+          setTimeout(_doSave, 1000);
+        }
+      } else {
+        setSyncStatus('synced');
+      }
+    } catch(e) {
+      setSyncStatus('error');
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   MATH CORE (Masaniello)
+═══════════════════════════════════════════ */
+function factorial(n) { return n <= 1 ? 1 : n * factorial(n-1); }
+function binomial(n,k) { if(k>n)return 0; return factorial(n)/(factorial(k)*factorial(n-k)); }
+function binomProb(n,k,p) { return binomial(n,k)*Math.pow(p,k)*Math.pow(1-p,n-k); }
+
+function calcMinEvents(total, avgOdds) {
+  const p = 1/avgOdds;
+  const exp = Math.floor(total*p);
+  const margin = Math.max(3, Math.floor(total*0.06));
+  return Math.max(1, exp - margin);
+}
+
+function calcSuccessProb(total, min, avgOdds) {
+  const p = 1/avgOdds;
+  let prob = 0;
+  for(let k=min; k<=total; k++) prob += binomProb(total,k,p);
+  return prob;
+}
+
+function calcStake(bankroll, eventsRemaining, winsNeeded, avgOdds) {
+  if(winsNeeded <= 0) return 0;
+  if(eventsRemaining <= 0) return bankroll;
+  if(eventsRemaining < winsNeeded) return bankroll;
+  const s = bankroll / (eventsRemaining + (avgOdds-1)*winsNeeded);
+  return Math.max(0.01, Math.round(s*100)/100);
+}
+
+/* ═══════════════════════════════════════════
+   RECALCULATE FUTURE STAKES (fixed)
+═══════════════════════════════════════════ */
+function recalcFuture(cycle) {
+  let winsLeft = Math.max(0, cycle.minEvents - cycle.wins);
+  let simBankroll = cycle.currentBankroll;
+  const startIdx = cycle.currentEventIndex; // next un-played event
+
+  for(let i = startIdx; i < cycle.events.length; i++) {
+    const eventsRemaining = cycle.totalEvents - i;
+    const stake = calcStake(simBankroll, eventsRemaining, winsLeft, cycle.avgOdds);
+    cycle.events[i].stakeActual = stake;
+    cycle.events[i].stakeCalculated = stake;
+    cycle.events[i].potentialWin = stake * cycle.events[i].oddsPlanned;
+
+    // Simulate an optimistic win for projection
+    if(winsLeft > 0) {
+      simBankroll += stake * (cycle.avgOdds - 1);
+      winsLeft--;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════
+   STREAK CALCULATOR
+═══════════════════════════════════════════ */
+function calcStreaks(cycle) {
+  let curStreak = 0, curType = null;
+  let maxWin = 0, maxLoss = 0, curWin = 0, curLoss = 0;
+  const settled = cycle.events.filter(e => e.result === 'win' || e.result === 'loss');
+  settled.forEach(e => {
+    if (e.result === 'win') {
+      curWin++; curLoss = 0;
+      if (curWin > maxWin) maxWin = curWin;
+    } else {
+      curLoss++; curWin = 0;
+      if (curLoss > maxLoss) maxLoss = curLoss;
+    }
+  });
+  // current streak (last N same results)
+  for (let i = settled.length - 1; i >= 0; i--) {
+    if (curType === null) curType = settled[i].result;
+    if (settled[i].result === curType) curStreak++;
+    else break;
+  }
+  return { curStreak, curType, maxWin, maxLoss };
+}
+function openNewCycleModal() {
+  const free = cycles.findIndex(c=>c===null);
+  if(free === -1) { toast('⚠️ Massimo 6 cicli paralleli. Chiudi o elimina un ciclo.', 'warning'); return; }
+  updateNCPreview();
+  openModal('modalNewCycle');
+}
+
+function checkROIWarning() {
+  const roi = parseFloat(document.getElementById('nc_roi').value)||0;
+  document.getElementById('roiWarning').style.display = roi>20?'block':'none';
+  updateNCPreview();
+}
+
+function updateNCPreview() {
+  const bankroll = parseFloat(document.getElementById('nc_bankroll').value)||1000;
+  const roi = parseFloat(document.getElementById('nc_roi').value)||10;
+  const odds = parseFloat(document.getElementById('nc_odds').value)||1.6;
+  const total = parseInt(document.getElementById('nc_events').value)||50;
+  const min = calcMinEvents(total, odds);
+  const prob = calcSuccessProb(total, min, odds);
+  const profit = bankroll*(roi/100);
+  const impliedP = (1/odds*100).toFixed(1);
+
+  document.getElementById('nc_preview').innerHTML = `
+    <div class="card" style="margin:0;padding:14px 16px;background:var(--bg);">
+      <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Anteprima Ciclo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:.85rem;">
+        <div><span style="color:var(--muted)">Vittorie necessarie</span><br><strong class="mono">${min} / ${total}</strong></div>
+        <div><span style="color:var(--muted)">Prob. successo</span><br><strong class="mono ${prob>=0.6?'txt-success':prob>=0.4?'txt-warning':'txt-danger'}">${(prob*100).toFixed(1)}%</strong></div>
+        <div><span style="color:var(--muted)">Profitto target</span><br><strong class="mono txt-success">€${profit.toFixed(2)}</strong></div>
+        <div><span style="color:var(--muted)">Margine errore</span><br><strong class="mono">${total-min} sconfitte max</strong></div>
+        <div><span style="color:var(--muted)">Win rate richiesto</span><br><strong class="mono">${((min/total)*100).toFixed(1)}%</strong></div>
+        <div><span style="color:var(--muted)">Prob. implicita quota</span><br><strong class="mono">${impliedP}%</strong></div>
+      </div>
+    </div>`;
+}
+
+function createCycle() {
+  const name = document.getElementById('nc_name').value.trim() || `Ciclo ${cycles.findIndex(c=>c===null)+1}`;
+  const bankroll = parseFloat(document.getElementById('nc_bankroll').value);
+  const roi = parseFloat(document.getElementById('nc_roi').value);
+  const avgOdds = parseFloat(document.getElementById('nc_odds').value);
+  const totalEvents = parseInt(document.getElementById('nc_events').value);
+
+  if(!bankroll||!roi||!avgOdds||!totalEvents){ toast('⚠️ Compila tutti i campi', 'warning'); return; }
+
+  const slot = cycles.findIndex(c=>c===null);
+  if(slot===-1){ toast('Nessuno slot libero','warning'); return; }
+
+  const minEvents = calcMinEvents(totalEvents, avgOdds);
+  const successProb = calcSuccessProb(totalEvents, minEvents, avgOdds);
+  const expectedProfit = bankroll*(roi/100);
+
+  const events = [];
+  let simBankroll = bankroll;
+  let winsLeft = minEvents;
+
+  for(let i=0; i<totalEvents; i++){
+    const rem = totalEvents-i;
+    const stake = calcStake(simBankroll, rem, winsLeft, avgOdds);
+    events.push({
+      id: i+1, name:'', notes:'',
+      stakeCalculated: stake, stakeActual: stake,
+      oddsPlanned: avgOdds, oddsActual: avgOdds,
+      potentialWin: stake*avgOdds,
+      result: null, profitLoss: 0,
+      bankrollAfter: simBankroll,
+      status: i===0?'active':'pending'
+    });
+    if(winsLeft>0){ simBankroll+=stake*(avgOdds-1); winsLeft--; }
+  }
+
+  cycles[slot] = {
+    name, bankroll, roi, avgOdds, totalEvents,
+    minEvents, successProb, expectedProfit,
+    events,
+    currentBankroll: bankroll,
+    wins:0, losses:0, voids:0, completed:0,
+    currentEventIndex:0,
+    status:'attivo',
+    bankrollHistory: [bankroll],
+    createdAt: new Date()
+  };
+
+  activeIdx = slot;
+  closeModal('modalNewCycle');
+  updateAllTabs();
+  renderAll();
+  saveState();
+  toast(`✅ Ciclo "${name}" creato`, 'success');
+}
+
+/* ═══════════════════════════════════════════
+   EVENTO — DUE FASI
+   Fase 1 (status 'active')  → inserisci quota, calcola stake, piazza
+   Fase 2 (status 'open')    → inserisci solo risultato
+═══════════════════════════════════════════ */
+function openEventModal() {
+  const cycle = cycles[activeIdx];
+  if (!cycle || cycle.status !== 'attivo') return;
+  const ev = cycle.events[cycle.currentEventIndex];
+  if (ev.status === 'open') {
+    openPhase2Modal(ev, cycle);
+  } else {
+    openPhase1Modal(ev, cycle);
+  }
+}
+
+/* ── FASE 1: quota → stake ── */
+function openPhase1Modal(ev, cycle) {
+  const winsLeft = Math.max(0, cycle.minEvents - cycle.wins);
+  const evLeft   = cycle.totalEvents - cycle.completed;
+  const initStake = calcStake(cycle.currentBankroll, evLeft, winsLeft, ev.oddsPlanned);
+
+  document.getElementById('modalEventTitle').textContent = `🎯 Fase 1 — Piazza Scommessa #${ev.id}`;
+  document.getElementById('modalEventBody').innerHTML = `
+    <div class="alert alert-info" style="margin-bottom:16px;">
+      Inserisci la quota che vuoi giocare. Lo stake verrà calcolato e bloccato. Poi potrai tornare a registrare il risultato.
+    </div>
+
+    <div style="background:var(--bg);border:2px solid var(--primary);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;">
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;">
+        <div class="form-group" style="margin:0;">
+          <label class="form-label" style="color:var(--primary);">Quota da giocare</label>
+          <input type="number" id="ev_odds" value="${ev.oddsPlanned.toFixed(2)}"
+                 min="1.01" max="20" step="0.01" oninput="onOddsInput()"
+                 style="font-size:1.4rem;font-weight:700;border-color:var(--primary);text-align:center;padding:12px;">
+        </div>
+        <div style="font-size:1.6rem;color:var(--muted);text-align:center;padding-top:22px;">→</div>
+        <div>
+          <div class="sc-label">Stake calcolato</div>
+          <div class="stake-big" id="ev_stake_display">€${initStake.toFixed(2)}</div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:3px;">
+            Vincita pot.: <strong class="mono txt-success" id="ev_pot">€${(initStake*ev.oddsPlanned).toFixed(2)}</strong>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" id="ev_stake_val" value="${initStake.toFixed(2)}">
+    </div>
+
+    <details style="margin-bottom:14px;">
+      <summary style="cursor:pointer;font-size:.82rem;color:var(--muted);user-select:none;padding:4px 0;">
+        ✏️ Sovrascrivi stake manualmente
+      </summary>
+      <div class="form-group" style="margin-top:10px;">
+        <label class="form-label">Stake personalizzato (€)</label>
+        <input type="number" id="ev_stake_override" placeholder="${initStake.toFixed(2)}"
+               min="0.01" step="0.01" oninput="onStakeOverride()">
+      </div>
+    </details>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Nome Evento <span style="font-weight:400;color:var(--muted)">(opzionale)</span></label>
+        <input type="text" id="ev_name" placeholder="Es: Milan vs Inter · Over 2.5">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note</label>
+        <input type="text" id="ev_notes" placeholder="Annotazioni...">
+      </div>
+    </div>
+    <div style="font-size:.78rem;color:var(--muted);">
+      Vittorie necessarie: <strong>${winsLeft}</strong> su <strong>${evLeft}</strong> rimaste ·
+      Cassa attuale: <strong class="mono">€${cycle.currentBankroll.toFixed(2)}</strong>
+    </div>`;
+
+  document.getElementById('modalEventBtns').innerHTML = `
+    <button class="btn btn-primary" onclick="placeEvent()" style="flex:1;">🎯 Piazza Scommessa</button>
+    <button class="btn btn-ghost"   onclick="closeModal('modalEvent')">Annulla</button>`;
+
+  openModal('modalEvent');
+}
+
+/* ── FASE 2: risultato ── */
+function openPhase2Modal(ev, cycle) {
+  const placedStr = ev.placedAt ? new Date(ev.placedAt).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+  document.getElementById('modalEventTitle').textContent = `📋 Fase 2 — Risultato Evento #${ev.id}`;
+  document.getElementById('modalEventBody').innerHTML = `
+    <div class="alert alert-warning" style="margin-bottom:16px;">
+      ⏳ Scommessa piazzata il <strong>${placedStr}</strong> — inserisci il risultato.
+    </div>
+    <div style="background:var(--bg);border:2px solid #c084fc;border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center;">
+      <div>
+        <div class="sc-label">Evento</div>
+        <div style="font-weight:700;font-size:.95rem;margin-top:4px;">${ev.name||`#${ev.id}`}</div>
+      </div>
+      <div>
+        <div class="sc-label">Quota giocata</div>
+        <div class="sc-value mono" style="font-size:1.6rem;">${ev.oddsActual.toFixed(2)}</div>
+      </div>
+      <div>
+        <div class="sc-label">Stake bloccato</div>
+        <div class="stake-big" style="font-size:1.8rem;">€${ev.stakeActual.toFixed(2)}</div>
+      </div>
+    </div>
+    <div style="font-size:.85rem;color:var(--muted);text-align:center;margin-bottom:4px;">
+      Vincita potenziale: <strong class="mono txt-success">€${ev.potentialWin.toFixed(2)}</strong>
+    </div>
+    ${ev.notes ? `<div style="font-size:.8rem;color:var(--muted);text-align:center;">Note: ${ev.notes}</div>` : ''}`;
+
+  document.getElementById('modalEventBtns').innerHTML = `
+    <button class="btn btn-success" onclick="recordResult('win')"  style="flex:1;">✅ Vinta</button>
+    <button class="btn btn-danger"  onclick="recordResult('loss')" style="flex:1;">❌ Persa</button>
+    <button class="btn btn-warning" onclick="recordResult('void')" style="flex:1;">↩ Void</button>
+    <button class="btn btn-ghost"   onclick="closeModal('modalEvent')">Annulla</button>`;
+
+  openModal('modalEvent');
+}
+
+/* ── Quota live → ricalcola stake ── */
+function onOddsInput() {
+  const cycle = cycles[activeIdx];
+  if (!cycle) return;
+  const odds     = parseFloat(document.getElementById('ev_odds').value) || cycle.avgOdds;
+  const winsLeft = Math.max(0, cycle.minEvents - cycle.wins);
+  const evLeft   = cycle.totalEvents - cycle.completed;
+  const stake    = calcStake(cycle.currentBankroll, evLeft, winsLeft, odds);
+
+  document.getElementById('ev_stake_val').value = stake.toFixed(2);
+  document.getElementById('ev_stake_display').textContent = '€' + stake.toFixed(2);
+
+  const overrideEl = document.getElementById('ev_stake_override');
+  const finalStake = (overrideEl && overrideEl.value) ? (parseFloat(overrideEl.value)||stake) : stake;
+  document.getElementById('ev_pot').textContent = '€' + (finalStake * odds).toFixed(2);
+}
+
+function onStakeOverride() {
+  const odds  = parseFloat(document.getElementById('ev_odds').value) || 1;
+  const stake = parseFloat(document.getElementById('ev_stake_override').value);
+  if (!isNaN(stake) && stake > 0)
+    document.getElementById('ev_pot').textContent = '€' + (stake * odds).toFixed(2);
+}
+
+/* ── FASE 1 → conferma piazzamento ── */
+function placeEvent() {
+  const cycle = cycles[activeIdx];
+  if (!cycle) return;
+  const ev = cycle.events[cycle.currentEventIndex];
+
+  const odds = parseFloat(document.getElementById('ev_odds').value) || ev.oddsPlanned;
+  const overrideVal = parseFloat(document.getElementById('ev_stake_override')?.value);
+  const calcVal     = parseFloat(document.getElementById('ev_stake_val')?.value) ||
+                      calcStake(cycle.currentBankroll,
+                                cycle.totalEvents - cycle.completed,
+                                Math.max(0, cycle.minEvents - cycle.wins), odds);
+  const stake = (!isNaN(overrideVal) && overrideVal > 0) ? overrideVal : calcVal;
+
+  ev.name        = document.getElementById('ev_name').value.trim() || `Evento ${ev.id}`;
+  ev.notes       = document.getElementById('ev_notes').value.trim();
+  ev.oddsActual  = odds;
+  ev.oddsPlanned = odds;          // aggiorna anche la pianificata con la quota reale scelta
+  ev.stakeActual = stake;
+  ev.potentialWin= stake * odds;
+  ev.status      = 'open';       // ← scommessa piazzata, in attesa risultato
+  ev.placedAt    = new Date().toISOString();
+
+  closeModal('modalEvent');
+  updateAllTabs();
+  renderAll();
+  saveState();
+  toast(`🎯 Scommessa #${ev.id} piazzata — €${stake.toFixed(2)} @ ${odds.toFixed(2)}`, 'info');
+}
+
+/* ── Annulla piazzamento → riporta a active ── */
+function cancelPlacement() {
+  const cycle = cycles[activeIdx];
+  if (!cycle) return;
+  const ev = cycle.events[cycle.currentEventIndex];
+  if (ev.status !== 'open') return;
+
+  // Ripristina i valori originali calcolati
+  const winsLeft = Math.max(0, cycle.minEvents - cycle.wins);
+  const evLeft   = cycle.totalEvents - cycle.completed;
+  const restoredStake = calcStake(cycle.currentBankroll, evLeft, winsLeft, cycle.avgOdds);
+
+  ev.status       = 'active';
+  ev.oddsActual   = cycle.avgOdds;
+  ev.oddsPlanned  = cycle.avgOdds;
+  ev.stakeActual  = restoredStake;
+  ev.stakeCalculated = restoredStake;
+  ev.potentialWin = restoredStake * cycle.avgOdds;
+  ev.name         = '';
+  ev.notes        = '';
+  ev.placedAt     = null;
+
+  updateAllTabs();
+  renderAll();
+  saveState();
+  toast(`↩ Piazzamento annullato. Evento #${ev.id} ripristinato.`, 'warning');
+}
+
+/* ── FASE 2 → registra risultato ── */
+function recordResult(result) {
+  const cycle = cycles[activeIdx];
+  if (!cycle) return;
+  const ev = cycle.events[cycle.currentEventIndex];
+  if (ev.status !== 'open') return; // sicurezza
+
+  ev.result  = result;
+  ev.settledAt = new Date().toISOString();
+  ev.potentialWin = ev.stakeActual * ev.oddsActual;
+
+  if (result === 'win') {
+    ev.profitLoss = ev.stakeActual * (ev.oddsActual - 1);
+    ev.status = 'win'; cycle.wins++;
+    cycle.currentBankroll += ev.profitLoss;
+  } else if (result === 'loss') {
+    ev.profitLoss = -ev.stakeActual;
+    ev.status = 'loss'; cycle.losses++;
+    cycle.currentBankroll += ev.profitLoss;
+  } else { // void
+    ev.profitLoss = 0;
+    ev.status = 'void'; cycle.voids++;
+  }
+
+  ev.bankrollAfter = cycle.currentBankroll;
+  if (result !== 'void') cycle.completed++;
+  cycle.bankrollHistory.push(cycle.currentBankroll);
+
+  // Avanza al prossimo evento
+  cycle.currentEventIndex++;
+  if (cycle.currentEventIndex < cycle.events.length)
+    cycle.events[cycle.currentEventIndex].status = 'active';
+
+  // Ricalcola stake futuri ora che il bankroll è aggiornato
+  recalcFuture(cycle);
+
+  closeModal('modalEvent');
+  updateAllTabs();
+  renderAll();
+  saveState();
+
+  // Notifiche
+  const winsLeft = Math.max(0, cycle.minEvents - cycle.wins);
+  const evLeft   = cycle.totalEvents - cycle.completed;
+  if (result === 'win' && winsLeft === 0)      toast('🎉 Obiettivo raggiunto! Puoi chiudere il ciclo.', 'success');
+  else if (result === 'loss' && winsLeft > evLeft) toast('⚠️ Obiettivo ora irraggiungibile.', 'danger');
+  else if (cycle.currentEventIndex >= cycle.events.length) toast('✅ Tutti gli eventi completati.', 'info');
+}
+
+/* ═══════════════════════════════════════════
+   CORREGGI ULTIMO RISULTATO (con cascata)
+═══════════════════════════════════════════ */
+function openCorrectLastModal() {
+  const cycle = cycles[activeIdx];
+  if (!cycle) return;
+
+  // Se c'è una scommessa aperta, lo stake è già bloccato: vietato correggere il precedente
+  const curEv = cycle.events[cycle.currentEventIndex];
+  if (curEv && curEv.status === 'open') {
+    toast('⚠️ Annulla prima il piazzamento corrente (↩ Annulla) poi correggi il risultato precedente.', 'warning');
+    return;
+  }
+
+  const lastIdx = cycle.currentEventIndex - 1;
+  if (lastIdx < 0) { toast('Nessun evento da correggere.', 'info'); return; }
+  const ev = cycle.events[lastIdx];
+  if (!ev || !ev.result) return;
+
+  const resLabel = { win: '✅ Vinta', loss: '❌ Persa', void: '↩ Void' };
+  const settledStr = ev.settledAt
+    ? new Date(ev.settledAt).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })
+    : '—';
+
+  document.getElementById('modalEventTitle').textContent = `✏️ Correggi Evento #${ev.id}`;
+  document.getElementById('modalEventBody').innerHTML = `
+    <div class="alert alert-warning" style="margin-bottom:16px;">
+      ⚠️ Stai correggendo l'ultimo risultato registrato. Il bankroll e gli stake futuri verranno ricalcolati a cascata.
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;text-align:center;">
+      <div><div class="sc-label">Evento</div><div style="font-weight:700;font-size:.9rem;margin-top:4px;">${ev.name||`#${ev.id}`}</div></div>
+      <div><div class="sc-label">Quota</div><div class="sc-value mono">${ev.oddsActual.toFixed(2)}</div></div>
+      <div><div class="sc-label">Stake</div><div class="sc-value mono">€${ev.stakeActual.toFixed(2)}</div></div>
+      <div><div class="sc-label">Risultato attuale</div><div class="sc-value">${resLabel[ev.result]||ev.result}</div></div>
+    </div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:6px;text-align:center;">
+      Registrato: <strong>${settledStr}</strong> · Seleziona il risultato corretto:
+    </div>`;
+
+  document.getElementById('modalEventBtns').innerHTML = `
+    <button class="btn btn-success" onclick="correctLastResult('win')"  style="flex:1;">✅ Vinta</button>
+    <button class="btn btn-danger"  onclick="correctLastResult('loss')" style="flex:1;">❌ Persa</button>
+    <button class="btn btn-warning" onclick="correctLastResult('void')" style="flex:1;">↩ Void</button>
+    <button class="btn btn-ghost"   onclick="closeModal('modalEvent')">Annulla</button>`;
+
+  openModal('modalEvent');
+}
+
+function correctLastResult(newResult) {
+  const cycle = cycles[activeIdx];
+  if (!cycle) return;
+  const lastIdx = cycle.currentEventIndex - 1;
+  const ev = cycle.events[lastIdx];
+  if (!ev) return;
+
+  const oldResult = ev.result;
+  if (oldResult === newResult) { closeModal('modalEvent'); return; }
+
+  // ── 1. UNDO vecchio risultato ──
+  // Inverte esattamente ciò che recordResult aveva applicato
+  if (oldResult === 'win') {
+    cycle.wins--;
+    cycle.completed--;
+    cycle.currentBankroll -= ev.profitLoss;      // profitLoss > 0 → bankroll scende
+  } else if (oldResult === 'loss') {
+    cycle.losses--;
+    cycle.completed--;
+    cycle.currentBankroll -= ev.profitLoss;      // profitLoss < 0 → bankroll sale
+  } else { // void
+    cycle.voids--;
+    // completed e bankroll non erano stati toccati
+  }
+  cycle.bankrollHistory.pop();
+
+  // ── 2. APPLICA nuovo risultato ──
+  ev.result    = newResult;
+  ev.settledAt = new Date().toISOString();
+
+  if (newResult === 'win') {
+    ev.profitLoss = ev.stakeActual * (ev.oddsActual - 1);
+    ev.status = 'win'; cycle.wins++;
+    cycle.currentBankroll += ev.profitLoss;
+    cycle.completed++;
+  } else if (newResult === 'loss') {
+    ev.profitLoss = -ev.stakeActual;
+    ev.status = 'loss'; cycle.losses++;
+    cycle.currentBankroll += ev.profitLoss;
+    cycle.completed++;
+  } else { // void
+    ev.profitLoss = 0;
+    ev.status = 'void'; cycle.voids++;
+  }
+
+  ev.bankrollAfter = cycle.currentBankroll;
+  cycle.bankrollHistory.push(cycle.currentBankroll);
+
+  // ── 3. CASCATA: ricalcola stake futuri con bankroll aggiornato ──
+  recalcFuture(cycle);
+
+  closeModal('modalEvent');
+  updateAllTabs();
+  renderAll();
+  saveState();
+
+  const resLabel = { win: '✅ Vinta', loss: '❌ Persa', void: '↩ Void' };
+  toast(`✏️ Evento #${ev.id} corretto: ${resLabel[oldResult]} → ${resLabel[newResult]}. Stake futuri aggiornati.`, 'success');
+}
+
+/* ── Quota live nella card ciclo ── */
+function updateQuickStake() {
+  const cycle = cycles[activeIdx];
+  if (!cycle) return;
+  const odds     = parseFloat(document.getElementById('quickOdds')?.value) || cycle.avgOdds;
+  const winsLeft = Math.max(0, cycle.minEvents - cycle.wins);
+  const evLeft   = cycle.totalEvents - cycle.completed;
+  const stake    = calcStake(cycle.currentBankroll, evLeft, winsLeft, odds);
+  const stakeEl  = document.getElementById('quickStakeDisplay');
+  const potEl    = document.getElementById('quickPot');
+  if (stakeEl) stakeEl.textContent = '€' + stake.toFixed(2);
+  if (potEl)   potEl.textContent   = '€' + (stake * odds).toFixed(2);
+}
+
+/* ═══════════════════════════════════════════
+   CLOSE / DELETE CYCLE
+═══════════════════════════════════════════ */
+function closeCycle() {
+  const cycle = cycles[activeIdx];
+  if(!cycle||cycle.status==='chiuso') return;
+  const profit = cycle.currentBankroll - cycle.bankroll;
+  const roi = ((profit/cycle.bankroll)*100).toFixed(2);
+  const ok = cycle.wins >= cycle.minEvents;
+
+  document.getElementById('confirmTitle').innerHTML = '🛑 Chiudi Ciclo';
+  document.getElementById('confirmBody').innerHTML = `
+    <div class="alert ${ok?'alert-success':'alert-danger'}" style="margin-bottom:14px">
+      ${ok ? '🎉 <strong>Obiettivo raggiunto!</strong>' : '😢 <strong>Obiettivo non raggiunto.</strong>'}
+    </div>
+    <div style="background:var(--bg);border-radius:8px;padding:14px;font-size:.88rem;line-height:1.8;">
+      <div><span style="color:var(--muted)">Ciclo:</span> <strong>${cycle.name}</strong></div>
+      <div><span style="color:var(--muted)">Cassa finale:</span> <strong class="mono">€${cycle.currentBankroll.toFixed(2)}</strong></div>
+      <div><span style="color:var(--muted)">Profitto:</span> <strong class="mono ${profit>=0?'txt-success':'txt-danger'}">${profit>=0?'+':''}€${profit.toFixed(2)}</strong></div>
+      <div><span style="color:var(--muted)">ROI:</span> <strong class="mono">${roi}%</strong></div>
+      <div><span style="color:var(--muted)">Vittorie:</span> <strong class="mono">${cycle.wins}/${cycle.minEvents}</strong></div>
+    </div>`;
+  document.getElementById('confirmBtns').innerHTML = `
+    <button class="btn btn-danger" onclick="confirmClose()">🛑 Conferma Chiusura</button>
+    <button class="btn btn-ghost" onclick="closeModal('modalConfirm')">Annulla</button>`;
+  openModal('modalConfirm');
+}
+
+function confirmClose() {
+  const cycle = cycles[activeIdx];
+  if(!cycle) return;
+  cycle.status = 'chiuso';
+  closeModal('modalConfirm');
+  updateAllTabs();
+  renderAll();
+  saveState();
+  toast(`Ciclo "${cycle.name}" chiuso.`, 'info');
+}
+
+function deleteCycle() {
+  const cycle = cycles[activeIdx];
+  if(!cycle) return;
+  document.getElementById('confirmTitle').innerHTML = '🗑️ Elimina Ciclo';
+  document.getElementById('confirmBody').innerHTML = `
+    <div class="alert alert-danger">
+      ⚠️ <strong>Attenzione!</strong> Tutti i dati del ciclo <strong>"${cycle.name}"</strong> verranno eliminati definitivamente.
+    </div>`;
+  document.getElementById('confirmBtns').innerHTML = `
+    <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Elimina Definitivamente</button>
+    <button class="btn btn-ghost" onclick="closeModal('modalConfirm')">Annulla</button>`;
+  openModal('modalConfirm');
+}
+
+function confirmDelete() {
+  const name = cycles[activeIdx]?.name;
+  cycles[activeIdx] = null;
+  closeModal('modalConfirm');
+  updateAllTabs();
+  renderAll();
+  saveState();
+  toast(`Ciclo "${name}" eliminato.`, 'warning');
+}
+
+/* ═══════════════════════════════════════════
+   RENDER ENGINE
+═══════════════════════════════════════════ */
+function renderAll() {
+  renderHeaderStats();
+  updateGlobalTabSub();
+  renderCycleContent();
+}
+
+function renderHeaderStats() {
+  const active = cycles.filter(c=>c!==null);
+  if(!active.length){ document.getElementById('headerStats').innerHTML=''; return; }
+  const totalProfit = active.reduce((a,c)=>a+(c.currentBankroll-c.bankroll),0);
+  const totalBankroll = active.reduce((a,c)=>a+c.bankroll,0);
+  const roi = totalBankroll>0?((totalProfit/totalBankroll)*100).toFixed(1):'0.0';
+  const totalWins = active.reduce((a,c)=>a+c.wins,0);
+  const totalComp = active.reduce((a,c)=>a+c.completed,0);
+  const wr = totalComp>0?((totalWins/totalComp)*100).toFixed(1):'0.0';
+
+  document.getElementById('headerStats').innerHTML = `
+    <div class="hstat">
+      <div class="hstat-label">Cicli</div>
+      <div class="hstat-value mono">${active.length} / 6</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label">P/L Totale</div>
+      <div class="hstat-value mono ${totalProfit>=0?'txt-success':'txt-danger'}">${totalProfit>=0?'+':''}€${totalProfit.toFixed(2)}</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label">ROI Globale</div>
+      <div class="hstat-value mono ${roi>=0?'txt-success':'txt-danger'}">${roi}%</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label">Win Rate</div>
+      <div class="hstat-value mono">${wr}%</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-label" style="cursor:pointer;display:flex;align-items:center;gap:5px;" onclick="openModal('modalIO')">💾 Salvataggio</div>
+      <div class="hstat-value" style="font-size:.8rem;color:var(--success);cursor:pointer;" onclick="openModal('modalIO')">Import / Export</div>
+    </div>`;
+}
+
+function updateGlobalTabSub() {
+  const active = cycles.filter(c => c !== null);
+  const sub = document.getElementById('tabGlobalSub');
+  if (!sub) return;
+  if (!active.length) { sub.textContent = 'Nessun ciclo'; return; }
+  const totalProfit = active.reduce((a, c) => a + (c.currentBankroll - c.bankroll), 0);
+  sub.textContent = `${active.length} cicli · ${totalProfit >= 0 ? '+' : ''}€${totalProfit.toFixed(0)}`;
+}
+
+function renderGlobalStats() {
+  const el = document.getElementById('cycleContent');
+  const active = cycles.filter(c => c !== null);
+  if (!active.length) {
+    el.innerHTML = `<div class="card"><div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">Nessun Ciclo Attivo</div>
+      <div class="empty-sub">Crea il tuo primo ciclo Masaniello per iniziare.</div>
+      <button class="btn btn-success" onclick="openNewCycleModal()">＋ Crea Nuovo Ciclo</button>
+    </div></div>`;
+    return;
+  }
+
+  const tBankroll = active.reduce((a,c)=>a+c.bankroll,0);
+  const tCurrent  = active.reduce((a,c)=>a+c.currentBankroll,0);
+  const tProfit   = tCurrent-tBankroll;
+  const tWins     = active.reduce((a,c)=>a+c.wins,0);
+  const tLoss     = active.reduce((a,c)=>a+c.losses,0);
+  const tComp     = active.reduce((a,c)=>a+c.completed,0);
+  const tEvents   = active.reduce((a,c)=>a+c.totalEvents,0);
+  const roi = tBankroll>0?((tProfit/tBankroll)*100).toFixed(2):'0.00';
+  const wr  = tComp>0?((tWins/tComp)*100).toFixed(1):'0.0';
+  const nActive = active.filter(c=>c.status==='attivo').length;
+  const nClosed = active.filter(c=>c.status==='chiuso').length;
+
+  el.innerHTML = `
+    <div class="global-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+        <div class="card-title" style="margin:0;border:none;padding:0;">📊 Statistiche Globali</div>
+        <div style="display:flex;gap:8px;">
+          <span class="badge badge-active">🔄 ${nActive} Attivi</span>
+          ${nClosed?`<span class="badge badge-loss">🛑 ${nClosed} Chiusi</span>`:''}
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-cell"><div class="sc-label">Bankroll Iniziale</div><div class="sc-value">€${tBankroll.toFixed(0)}</div></div>
+        <div class="stat-cell"><div class="sc-label">Cassa Attuale</div><div class="sc-value ${tCurrent>=tBankroll?'txt-success':'txt-danger'}">€${tCurrent.toFixed(0)}</div></div>
+        <div class="stat-cell" style="border-color:${tProfit>=0?'var(--success)':'var(--danger)'}"><div class="sc-label">Profitto / Perdita</div><div class="sc-value ${tProfit>=0?'txt-success':'txt-danger'}">${tProfit>=0?'+':''}€${tProfit.toFixed(2)}</div></div>
+        <div class="stat-cell" style="border-color:${roi>=0?'var(--success)':'var(--danger)'}"><div class="sc-label">ROI Globale</div><div class="sc-value ${roi>=0?'txt-success':'txt-danger'}">${roi}%</div></div>
+        <div class="stat-cell"><div class="sc-label">Vittorie / Sconfitte</div><div class="sc-value"><span class="txt-success">${tWins}</span> / <span class="txt-danger">${tLoss}</span></div></div>
+        <div class="stat-cell"><div class="sc-label">Win Rate</div><div class="sc-value ${wr>=50?'txt-success':'txt-warning'}">${wr}%</div></div>
+        <div class="stat-cell"><div class="sc-label">Eventi Completati</div><div class="sc-value">${tComp}<span style="font-size:.9rem;color:var(--muted)"> / ${tEvents}</span></div><div class="sc-sub">${tEvents>0?((tComp/tEvents)*100).toFixed(1):'0'}%</div></div>
+        <div class="stat-cell"><div class="sc-label">Cicli Totali</div><div class="sc-value">${active.length}<span style="font-size:.9rem;color:var(--muted)"> / 6</span></div></div>
+      </div>
+      <hr class="divider">
+      <div style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Riepilogo per Ciclo</div>
+      <div class="cycle-summary-row">
+        ${active.map(c=>{
+          const p = c.currentBankroll-c.bankroll;
+          const r = ((p/c.bankroll)*100).toFixed(1);
+          const n = cycles.indexOf(c)+1;
+          return `<div class="cycle-summary-card status-${c.status}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-weight:700;font-size:.88rem;">Ciclo ${n}: ${c.name}</span>
+              <span class="cycle-status-badge css-${c.status}">${c.status}</span>
+            </div>
+            <div style="font-size:.8rem;color:var(--muted);line-height:1.7;">
+              <span>P/L: <strong class="mono ${p>=0?'txt-success':'txt-danger'}">${p>=0?'+':''}€${p.toFixed(2)}</strong></span> &nbsp;
+              <span>ROI: <strong class="mono">${r}%</strong></span> &nbsp;
+              <span>Ev: <strong class="mono">${c.completed}/${c.totalEvents}</strong></span> &nbsp;
+              <span>W/L: <strong class="mono">${c.wins}/${c.losses}</strong></span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function renderCycleContent() {
+  if (activeView === 'global') { renderGlobalStats(); return; }
+  const el = document.getElementById('cycleContent');
+  const cycle = cycles[activeIdx];
+
+  if(!cycle){
+    el.innerHTML=`
+      <div class="card">
+        <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          <div class="empty-title">Nessun Ciclo in Questo Slot</div>
+          <div class="empty-sub">Crea un nuovo ciclo Masaniello per iniziare.</div>
+          <button class="btn btn-success" onclick="openNewCycleModal()">＋ Crea Nuovo Ciclo</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const profit = cycle.currentBankroll - cycle.bankroll;
+  const roi = ((profit/cycle.bankroll)*100).toFixed(2);
+  const wr = cycle.completed>0?((cycle.wins/cycle.completed)*100).toFixed(1):'0.0';
+  const pct = ((cycle.completed/cycle.totalEvents)*100).toFixed(1);
+  const winsLeft = Math.max(0, cycle.minEvents - cycle.wins);
+  const evLeft = cycle.totalEvents - cycle.completed;
+  const canWin = winsLeft <= evLeft;
+
+  let statusAlert = '';
+  if(cycle.status==='chiuso'){
+    statusAlert = cycle.wins>=cycle.minEvents
+      ? `<div class="alert alert-success">🎉 Ciclo chiuso con successo! Obiettivo raggiunto.</div>`
+      : `<div class="alert alert-danger">😢 Ciclo chiuso. Obiettivo non raggiunto.</div>`;
+  } else if(winsLeft<=0){
+    statusAlert = `<div class="alert alert-success">🎉 Obiettivo di vittorie raggiunto! Puoi chiudere il ciclo.</div>`;
+  } else if(!canWin){
+    statusAlert = `<div class="alert alert-danger">⚠️ Obiettivo non più raggiungibile (${winsLeft} vittorie in ${evLeft} eventi).</div>`;
+  } else {
+    statusAlert = `<div class="alert alert-info">📊 Obiettivo: <strong>${winsLeft}</strong> vittorie nelle prossime <strong>${evLeft}</strong> partite</div>`;
+  }
+
+  let eventCard = '';
+  if (cycle.currentEventIndex < cycle.events.length && cycle.status === 'attivo') {
+    const ev = cycle.events[cycle.currentEventIndex];
+
+    if (ev.status === 'open') {
+      // ── FASE 2: scommessa piazzata, attesa risultato ──
+      const placedStr = ev.placedAt ? new Date(ev.placedAt).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+      eventCard = `
+        <div class="card" style="border-color:#c084fc;">
+          <div class="card-title" style="color:#c084fc;justify-content:space-between;">
+            <span>⏳ Evento #${ev.id} — In attesa di risultato</span>
+            <button class="btn btn-ghost btn-sm" onclick="cancelPlacement()" title="Annulla piazzamento e torna alla Fase 1"
+                    style="color:var(--warning);border-color:var(--warning);font-size:.72rem;">↩ Annulla</button>
+          </div>
+          <div style="background:var(--bg);border:2px solid #c084fc;border-radius:var(--radius-lg);padding:18px;margin-bottom:14px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
+              <div>
+                <div class="sc-label">Evento</div>
+                <div style="font-weight:700;font-size:.9rem;margin-top:4px;word-break:break-word;">${ev.name||`#${ev.id}`}</div>
+              </div>
+              <div>
+                <div class="sc-label">Quota giocata</div>
+                <div class="sc-value mono" style="font-size:1.7rem;">${ev.oddsActual.toFixed(2)}</div>
+              </div>
+              <div>
+                <div class="sc-label">Stake</div>
+                <div class="stake-big" style="font-size:1.8rem;">€${ev.stakeActual.toFixed(2)}</div>
+              </div>
+            </div>
+            <div style="text-align:center;margin-top:10px;font-size:.82rem;color:var(--muted);">
+              Vincita pot.: <strong class="mono txt-success">€${ev.potentialWin.toFixed(2)}</strong>
+              ${ev.notes?`· <em>${ev.notes}</em>`:''}
+            </div>
+            <div style="text-align:center;margin-top:6px;font-size:.75rem;color:var(--muted);">
+              🕐 Piazzata: <strong>${placedStr}</strong>
+            </div>
+          </div>
+          <button class="btn" style="width:100%;justify-content:center;background:rgba(168,85,247,.15);border:1px solid #c084fc;color:#c084fc;font-weight:700;"
+                  onclick="openEventModal()">
+            📋 Inserisci Risultato
+          </button>
+        </div>`;
+    } else {
+      // ── FASE 1: calcola quota → stake ──
+      eventCard = `
+        <div class="card">
+          <div class="card-title">🎯 Evento #${ev.id} — Piazza Scommessa</div>
+          <div class="event-spotlight">
+            <div style="font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">
+              Inserisci la quota → lo stake viene calcolato
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+              <div class="form-group" style="margin:0;flex:1;">
+                <label class="form-label" style="color:var(--primary);font-size:.7rem;">Quota da giocare</label>
+                <input type="number" id="quickOdds" value="${ev.oddsPlanned.toFixed(2)}"
+                       min="1.01" max="20" step="0.01" oninput="updateQuickStake()"
+                       style="font-size:1.15rem;font-weight:700;border-color:var(--primary);text-align:center;padding:10px;width:100%">
+              </div>
+              <div style="font-size:1.5rem;color:var(--muted);padding-top:20px;">→</div>
+              <div style="flex:1.2;">
+                <div class="sc-label">Stake calcolato</div>
+                <div class="stake-big" id="quickStakeDisplay" style="font-size:2rem;">€${ev.stakeActual.toFixed(2)}</div>
+              </div>
+            </div>
+            <div class="event-detail-row">
+              <span class="edr-label">Vincita potenziale</span>
+              <span class="edr-value txt-success" id="quickPot">€${ev.potentialWin.toFixed(2)}</span>
+            </div>
+            <div class="event-detail-row">
+              <span class="edr-label">Vittorie necessarie</span>
+              <span class="edr-value">${winsLeft} su ${evLeft} rimasti</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;margin-top:14px;justify-content:center;" onclick="openEventModal()">
+            🎯 Piazza Scommessa
+          </button>
+        </div>`;
+    }
+  } else if (cycle.status === 'attivo') {
+    eventCard = `<div class="card"><div class="alert alert-success">✅ Tutti gli eventi completati. Premi <strong>Chiudi Ciclo</strong> per il riepilogo finale.</div></div>`;
+  }
+
+  const streaks = calcStreaks(cycle);
+  const curStreakLabel = streaks.curType === 'win'
+    ? `<span class="txt-success">+${streaks.curStreak}W</span>`
+    : streaks.curType === 'loss'
+    ? `<span class="txt-danger">-${streaks.curStreak}L</span>`
+    : `<span class="txt-muted">—</span>`;
+
+  el.innerHTML = `
+    <!-- CYCLE HEADER CARD -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span style="font-size:1.15rem;font-weight:800;">${cycle.name}</span>
+          <span class="cycle-status-badge css-${cycle.status}">${cycle.status}</span>
+        </div>
+        <div class="btn-row" style="margin:0;">
+          ${cycle.status==='attivo'?`<button class="btn btn-danger btn-sm" onclick="closeCycle()">🛑 Chiudi Ciclo</button>`:''}
+          <button class="btn btn-ghost btn-sm" onclick="openModal('modalIO')">💾 Export</button>
+          <button class="btn btn-ghost btn-sm" onclick="deleteCycle()">🗑 Elimina</button>
+        </div>
+      </div>
+
+      ${statusAlert}
+
+      <div class="stat-grid" style="margin-bottom:16px;">
+        <div class="stat-cell"><div class="sc-label">Evento</div><div class="sc-value">${cycle.currentEventIndex+1}<span style="font-size:.9rem;color:var(--muted)"> / ${cycle.totalEvents}</span></div></div>
+        <div class="stat-cell"><div class="sc-label">Cassa Attuale</div><div class="sc-value mono">€${cycle.currentBankroll.toFixed(2)}</div></div>
+        <div class="stat-cell"><div class="sc-label">P/L</div><div class="sc-value mono ${profit>=0?'txt-success':'txt-danger'}">${profit>=0?'+':''}€${profit.toFixed(2)}</div></div>
+        <div class="stat-cell"><div class="sc-label">ROI</div><div class="sc-value mono ${roi>=0?'txt-success':'txt-danger'}">${roi}%</div></div>
+        <div class="stat-cell"><div class="sc-label">Vinte / Perse</div><div class="sc-value"><span class="txt-success">${cycle.wins}</span> / <span class="txt-danger">${cycle.losses}</span></div></div>
+        <div class="stat-cell"><div class="sc-label">Win Rate</div><div class="sc-value ${wr>=50?'txt-success':'txt-warning'}">${wr}%</div></div>
+        <div class="stat-cell"><div class="sc-label">Obiettivo</div><div class="sc-value">${cycle.wins}<span style="font-size:.9rem;color:var(--muted)"> / ${cycle.minEvents}</span></div></div>
+        <div class="stat-cell"><div class="sc-label">Margine Errore</div><div class="sc-value ${winsLeft>evLeft?'txt-danger':'txt-muted'}">${Math.max(0,evLeft-winsLeft)}</div></div>
+        <div class="stat-cell"><div class="sc-label">Streak Attuale</div><div class="sc-value" style="font-size:1.3rem;">${curStreakLabel}</div></div>
+        <div class="stat-cell"><div class="sc-label">Max Win Streak</div><div class="sc-value txt-success">${streaks.maxWin}</div></div>
+        <div class="stat-cell"><div class="sc-label">Max Loss Streak</div><div class="sc-value txt-danger">${streaks.maxLoss}</div></div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-labels"><span>${cycle.completed} eventi completati</span><span>${pct}%</span><span>${cycle.totalEvents} totali</span></div>
+      </div>
+    </div>
+
+    <!-- EVENT + STATS GRID -->
+    <div class="grid2">
+      ${eventCard}
+      <div class="card">
+        <div class="card-title">📈 Curva Bankroll</div>
+        <div class="chart-container">
+          <canvas id="equityChart"></canvas>
+        </div>
+        <div class="card-title" style="margin-top:16px;font-size:.85rem;">🎯 Sequenza W/L</div>
+        <div class="chart-container-sm">
+          <canvas id="streakChart"></canvas>
+        </div>
+        <div style="margin-top:10px;font-size:.78rem;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap;">
+          <span>Bankroll iniziale: <strong class="mono">€${cycle.bankroll.toFixed(2)}</strong></span>
+          <span>Target: <strong class="mono txt-success">+€${cycle.expectedProfit.toFixed(2)}</strong></span>
+          <span>Prob. successo: <strong class="mono">${(cycle.successProb*100).toFixed(1)}%</strong></span>
+          ${cycle.voids>0?`<span>Void: <strong class="mono txt-warning">${cycle.voids}</strong></span>`:''}
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENTS TABLE -->
+    <div class="card">
+      <div class="card-title">📋 Tabella Completa Eventi</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Nome</th><th>Stake</th><th>Quota</th>
+              <th>Vincita Pot.</th><th>Risultato</th><th>P/L</th>
+              <th>Cassa</th><th>🕐 Piazzata</th><th>🏁 Chiusa</th><th>Stato</th>
+            </tr>
+          </thead>
+          <tbody>${buildTableRows(cycle)}</tbody>
+        </table>
+      </div>
+    </div>`;
+
+  // Draw charts after DOM update
+  requestAnimationFrame(() => {
+    drawEquityChart(cycle);
+    drawStreakChart(cycle);
+  });
+}
+
+function buildTableRows(cycle) {
+  const lastSettledIdx = cycle.currentEventIndex - 1;
+  return cycle.events.map((ev, i) => {
+    const cls = ev.status==='active'?'row-active':ev.status==='win'?'row-win':ev.status==='loss'?'row-loss':ev.status==='void'?'row-void':ev.status==='open'?'row-open':'';
+    const badge = {
+      pending:`<span class="badge badge-pending">⏳ Attesa</span>`,
+      active: `<span class="badge badge-active">▶ Fase 1</span>`,
+      open:   `<span class="badge badge-open">⏳ Aperta</span>`,
+      win:    `<span class="badge badge-win">✅ Vinta</span>`,
+      loss:   `<span class="badge badge-loss">❌ Persa</span>`,
+      void:   `<span class="badge badge-void">↩ Void</span>`
+    }[ev.status] || '';
+    const res = ev.result===null ? (ev.status==='open'?'<span style="color:#c084fc">⏳</span>':'—') : ev.result==='win'?'✅':ev.result==='loss'?'❌':'↩';
+    const pl  = ev.result===null ? (ev.status==='open'?`<span class="mono" style="color:#c084fc">–</span>`:'—') :
+      `<span class="mono ${ev.profitLoss>0?'txt-success':ev.profitLoss<0?'txt-danger':'txt-muted'}">${ev.profitLoss>=0?'+':''}€${ev.profitLoss.toFixed(2)}</span>`;
+    const br  = ev.result===null ? (ev.status==='open'?`<span class="mono" style="color:var(--muted)">?</span>`:'—') : `<span class="mono">€${ev.bankrollAfter.toFixed(2)}</span>`;
+    const isLastSettled = i === lastSettledIdx && ev.result !== null;
+    const editBtn = isLastSettled && cycle.status === 'attivo'
+      ? `<button onclick="openCorrectLastModal()" title="Correggi risultato"
+           style="background:none;border:1px solid var(--muted);border-radius:4px;cursor:pointer;padding:2px 6px;font-size:.7rem;color:var(--muted);margin-left:4px;" >✏️</button>`
+      : '';
+    const fmtDate = iso => iso ? new Date(iso).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+    return `<tr class="${cls}">
+      <td><strong>${ev.id}</strong></td>
+      <td style="font-family:var(--font-ui);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.name||'<span style="color:var(--muted)">—</span>'}</td>
+      <td><strong>€${ev.stakeActual.toFixed(2)}</strong></td>
+      <td>${ev.oddsActual.toFixed(2)}</td>
+      <td>€${ev.potentialWin.toFixed(2)}</td>
+      <td>${res}${editBtn}</td>
+      <td>${pl}</td>
+      <td>${br}</td>
+      <td style="font-size:.75rem;color:var(--muted);white-space:nowrap;">${fmtDate(ev.placedAt)}</td>
+      <td style="font-size:.75rem;color:var(--muted);white-space:nowrap;">${fmtDate(ev.settledAt)}</td>
+      <td>${badge}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   EQUITY CHART (pure Canvas)
+═══════════════════════════════════════════ */
+function drawEquityChart(cycle) {
+  const canvas = document.getElementById('equityChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const W = canvas.parentElement.offsetWidth;
+  const H = canvas.parentElement.offsetHeight;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  ctx.scale(dpr,dpr);
+
+  const hist = cycle.bankrollHistory;
+  if(hist.length<2){ ctx.fillStyle='rgba(96,128,160,.3)'; ctx.font='13px Outfit'; ctx.textAlign='center'; ctx.fillText('Dati non ancora disponibili',W/2,H/2); return; }
+
+  const pad={t:12,r:12,b:28,l:60};
+  const cw=W-pad.l-pad.r; const ch=H-pad.t-pad.b;
+  const min=Math.min(...hist)*0.995; const max=Math.max(...hist)*1.005;
+  const range=max-min||1;
+  const xs=(i)=>pad.l+i*(cw/(hist.length-1));
+  const ys=(v)=>pad.t+ch-(((v-min)/range)*ch);
+
+  // Grid lines
+  ctx.strokeStyle='rgba(28,45,69,.8)'; ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.t+(ch/4)*i;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    const val=max-((range/4)*i);
+    ctx.fillStyle='rgba(96,128,160,.8)'; ctx.font=`10px JetBrains Mono,monospace`; ctx.textAlign='right';
+    ctx.fillText('€'+val.toFixed(0),pad.l-4,y+4);
+  }
+
+  // Area fill
+  const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  const lastPL = hist[hist.length-1]-hist[0];
+  const areaColor = lastPL>=0?'rgba(52,211,153,':'rgba(248,113,113,';
+  grad.addColorStop(0,areaColor+'0.25)'); grad.addColorStop(1,areaColor+'0.01)');
+  ctx.beginPath(); ctx.moveTo(xs(0),ys(hist[0]));
+  hist.forEach((_,i)=>{ if(i>0)ctx.lineTo(xs(i),ys(hist[i])); });
+  ctx.lineTo(xs(hist.length-1),pad.t+ch); ctx.lineTo(xs(0),pad.t+ch); ctx.closePath();
+  ctx.fillStyle=grad; ctx.fill();
+
+  // Bankroll line
+  const lineColor=lastPL>=0?'#34d399':'#f87171';
+  ctx.beginPath(); ctx.moveTo(xs(0),ys(hist[0]));
+  hist.forEach((_,i)=>{ if(i>0)ctx.lineTo(xs(i),ys(hist[i])); });
+  ctx.strokeStyle=lineColor; ctx.lineWidth=2; ctx.stroke();
+
+  // Baseline (initial bankroll)
+  ctx.beginPath(); ctx.moveTo(pad.l,ys(cycle.bankroll)); ctx.lineTo(pad.l+cw,ys(cycle.bankroll));
+  ctx.strokeStyle='rgba(96,128,160,.4)'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+
+  // Dots
+  hist.forEach((v,i)=>{
+    if(i===0||i===hist.length-1||i===hist.indexOf(Math.max(...hist))||i===hist.indexOf(Math.min(...hist))){
+      ctx.beginPath(); ctx.arc(xs(i),ys(v),3.5,0,Math.PI*2);
+      ctx.fillStyle=lineColor; ctx.fill();
+    }
+  });
+
+  // X labels
+  ctx.fillStyle='rgba(96,128,160,.8)'; ctx.font='10px JetBrains Mono,monospace'; ctx.textAlign='center';
+  const step=Math.max(1,Math.floor((hist.length-1)/5));
+  for(let i=0;i<hist.length;i+=step){
+    ctx.fillText(i,xs(i),pad.t+ch+16);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   STREAK CHART — barre colorate W/L/V
+═══════════════════════════════════════════ */
+function drawStreakChart(cycle) {
+  const canvas = document.getElementById('streakChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.offsetWidth;
+  const H = canvas.parentElement.offsetHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  // Only show events that have been placed (open, win, loss, void)
+  const events = cycle.events.filter(e => e.status !== 'pending' && e.status !== 'active');
+  if (events.length === 0) {
+    ctx.fillStyle = 'rgba(96,128,160,.3)';
+    ctx.font = '11px Outfit, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Nessun evento ancora', W / 2, H / 2);
+    return;
+  }
+
+  const pad = { t: 4, r: 4, b: 18, l: 4 };
+  const cw = W - pad.l - pad.r;
+  const ch = H - pad.t - pad.b;
+  const barW = Math.max(3, (cw / events.length) - 1.5);
+  const gap  = (cw - barW * events.length) / Math.max(events.length - 1, 1);
+
+  events.forEach((ev, i) => {
+    const x = pad.l + i * (barW + gap);
+    let color, label;
+    if (ev.status === 'win')  { color = '#34d399'; label = 'W'; }
+    else if (ev.status === 'loss') { color = '#f87171'; label = 'L'; }
+    else if (ev.status === 'open') { color = '#c084fc'; label = '⏳'; }
+    else { color = '#fbbf24'; label = 'V'; } // void
+
+    // Bar
+    ctx.fillStyle = color + 'cc';
+    ctx.beginPath();
+    ctx.roundRect(x, pad.t, barW, ch, 2);
+    ctx.fill();
+
+    // Streak highlight: color bar fully if part of current streak
+    // Label inside bar only if wide enough
+    if (barW > 12) {
+      ctx.fillStyle = color;
+      ctx.font = `bold ${Math.min(10, barW * 0.8)}px JetBrains Mono, monospace`;
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x + barW / 2, pad.t + ch / 2 + 4);
+    }
+
+    // Event number below
+    if (barW > 10 && i % Math.max(1, Math.floor(events.length / 10)) === 0) {
+      ctx.fillStyle = 'rgba(96,128,160,.7)';
+      ctx.font = '9px JetBrains Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(ev.id, x + barW / 2, H - 3);
+    }
+  });
+
+  // Legend
+  const legends = [['#34d399','W'],['#f87171','L'],['#fbbf24','V'],['#c084fc','⏳']];
+  ctx.font = '9px Outfit, sans-serif'; ctx.textAlign = 'left';
+  let lx = pad.l;
+  legends.forEach(([c, t]) => {
+    ctx.fillStyle = c; ctx.fillRect(lx, H - 14, 8, 8);
+    ctx.fillStyle = 'rgba(96,128,160,.8)'; ctx.fillText(t, lx + 10, H - 6);
+    lx += 28;
+  });
+}
+
+/* ═══════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════ */
+function switchToGlobal() {
+  activeView = 'global';
+  document.getElementById('tabGlobal').classList.add('active');
+  document.querySelectorAll('.cycle-tab').forEach(t => t.classList.remove('active'));
+  renderCycleContent();
+}
+
+function switchCycle(idx) {
+  activeIdx = idx;
+  activeView = idx;
+  document.getElementById('tabGlobal').classList.remove('active');
+  document.querySelectorAll('.cycle-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  renderCycleContent();
+}
+
+function updateAllTabs(){
+  cycles.forEach((_,i)=>updateTab(i));
+}
+
+function updateTab(i) {
+  const tab = document.getElementById(`tab${i}`);
+  const c = cycles[i];
+  tab.className = 'cycle-tab' + (activeView === i ? ' active' : '');
+  if (!c) { tab.querySelector('.ct-name').textContent = `Ciclo ${i+1}`; tab.querySelector('.ct-sub').textContent = 'Vuoto'; return; }
+  const p = c.currentBankroll - c.bankroll;
+  tab.classList.add('has-cycle', `status-${c.status}`);
+  tab.querySelector('.ct-name').textContent = c.name.length > 18 ? c.name.slice(0,17)+'…' : c.name;
+  tab.querySelector('.ct-sub').textContent = `${c.completed}/${c.totalEvents} · ${p>=0?'+':''}€${p.toFixed(0)}`;
+}
+
+/* ═══════════════════════════════════════════
+   MODAL HELPERS
+═══════════════════════════════════════════ */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// Close on backdrop click
+document.querySelectorAll('.modal-backdrop').forEach(el=>{
+  el.addEventListener('click', e=>{ if(e.target===el) el.classList.remove('open'); });
+});
+
+// ESC key
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-backdrop.open').forEach(m=>m.classList.remove('open')); });
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+function toast(msg, type='info', duration=3200){
+  const el=document.createElement('div');
+  el.className=`toast toast-${type}`;
+  el.innerHTML=`<span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(()=>{ el.style.animation='toastOut .3s ease forwards'; setTimeout(()=>el.remove(),300); }, duration);
+}
+
+/* ═══════════════════════════════════════════
+   IMPORT / EXPORT
+═══════════════════════════════════════════ */
+function openIOModal(){
+  document.getElementById('ioArea').value=JSON.stringify(cycles,null,2);
+  openModal('modalIO');
+}
+
+function exportJSON(){
+  const data=JSON.stringify(cycles,null,2);
+  document.getElementById('ioArea').value=data;
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`masaniello_backup_${Date.now()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ JSON esportato','success');
+}
+
+function importJSON(){
+  try{
+    const raw=document.getElementById('ioArea').value;
+    const parsed=JSON.parse(raw);
+    if(!Array.isArray(parsed)||parsed.length!==6) throw new Error('Formato non valido');
+    cycles=parsed.map(c=>{ if(!c)return null; if(c.createdAt)c.createdAt=new Date(c.createdAt); if(!c.bankrollHistory)c.bankrollHistory=[c.bankroll]; if(c.voids===undefined)c.voids=0; return c; });
+    closeModal('modalIO');
+    updateAllTabs(); renderAll(); saveState();
+    toast('✅ Dati importati correttamente','success');
+  } catch(e){ toast('❌ JSON non valido: '+e.message,'danger',5000); }
+}
+
+function exportCSV(){
+  const cycle=cycles[activeIdx];
+  if(!cycle){ toast('⚠️ Nessun ciclo attivo','warning'); return; }
+  let csv=`Ciclo,${cycle.name}\nCreato,${new Date(cycle.createdAt).toLocaleString()}\nStato,${cycle.status}\n\n`;
+  csv+='#,Nome,Stake,Quota,Risultato,P/L,Cassa\n';
+  cycle.events.forEach(ev=>{
+    if(ev.result!==null){
+      csv+=`${ev.id},"${ev.name}",${ev.stakeActual.toFixed(2)},${ev.oddsActual.toFixed(2)},${ev.result==='win'?'Vinta':ev.result==='loss'?'Persa':'Void'},${ev.profitLoss.toFixed(2)},${ev.bankrollAfter.toFixed(2)}\n`;
+    }
+  });
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`${cycle.name.replace(/\s+/g,'_')}.csv`; a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ CSV esportato','success');
+}
+
+/* ═══════════════════════════════════════════
+   LIVE PREVIEW (new cycle modal inputs)
+═══════════════════════════════════════════ */
+['nc_bankroll','nc_odds','nc_events'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('input', updateNCPreview);
+});
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+(async function init() {
+  await loadState();
+  activeView = 'global';
+  updateAllTabs();
+  renderAll();
+  updateNCPreview();
+  // Il toast di sync è gestito da setSyncStatus
+})();
+</script>
+</body>
+</html>
